@@ -5,17 +5,20 @@ import {
   createIcons, MapPin, Bookmark, Settings2, HelpCircle, ArrowUpRight, ArrowRight,
   Search, Plus, Minus, Crosshair, Smartphone, RefreshCw, ChevronDown, X, Check,
   Circle, Download, Pencil, Trash2, RotateCcw, LoaderCircle, Cable, Laptop, Monitor,
-  ChevronLeft,
+  ChevronLeft, Sun, Moon,
 } from 'lucide';
 import { createPreviewBridge } from './preview.js';
 
+const getUnit = () => state.preferences?.speedUnit || 'kmh';
+const unitStr = () => getUnit() === 'mph' ? 'mph' : 'km/h';
+const formatDist = (meters) => getUnit() === 'mph' ? (meters / 1609.34).toFixed(2) + ' mi' : (meters / 1000).toFixed(2) + ' km';
 const isPreview = !window.ghost;
 const detectedHost = /Windows/i.test(navigator.userAgent) ? 'windows' : 'mac';
 document.documentElement.classList.toggle('host-windows', detectedHost === 'windows');
 document.documentElement.classList.toggle('desktop-app', !isPreview);
 const api = window.ghost || createPreviewBridge();
 const dismissedWifi = new Set();
-const icons = { MapPin, Bookmark, Settings2, HelpCircle, ArrowUpRight, ArrowRight, Search, Plus, Minus, Crosshair, Smartphone, RefreshCw, ChevronDown, X, Check, Circle, Download, Pencil, Trash2, RotateCcw, LoaderCircle, Cable, Laptop, Monitor, ChevronLeft };
+const icons = { MapPin, Bookmark, Settings2, HelpCircle, ArrowUpRight, ArrowRight, Search, Plus, Minus, Crosshair, Smartphone, RefreshCw, ChevronDown, X, Check, Circle, Download, Pencil, Trash2, RotateCcw, LoaderCircle, Cable, Laptop, Monitor, ChevronLeft, Sun, Moon };
 const $ = (selector) => document.querySelector(selector);
 const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character]));
 const icon = (name, cls = '') => `<i data-lucide="${name}" class="${cls}" aria-hidden="true"></i>`;
@@ -104,6 +107,7 @@ $('#app').innerHTML = `
     <div class="titlebar-right">
       <span class="preview-label" ${isPreview ? '' : 'hidden'}>Preview</span>
       <button id="saved-nav-button" class="toolbar-button" data-view="saved">${icon('bookmark')}<span>Saved</span><span class="toolbar-count" id="saved-dot" hidden></span></button>
+      <button id="theme-button" class="toolbar-button icon-only" aria-label="Toggle dark mode" title="Toggle dark mode"></button>
       <button id="help-button" class="toolbar-button" aria-label="Device setup" title="Device setup">${icon('help-circle')}<span>Setup</span></button>
       <button id="settings-button" class="toolbar-button icon-only" aria-label="Settings" title="Settings">${icon('settings-2')}</button>
     </div>
@@ -140,9 +144,10 @@ $('#app').innerHTML = `
             <button id="add-route-stop" class="secondary-button">${icon('plus')} Add selected pin to route</button>
             <ol id="route-stops" class="route-stops"></ol>
             <div class="route-plan-actions"><button id="plan-route" class="secondary-button">Plan road route</button><button id="clear-route" class="text-button">Clear</button></div>
+            <label class="field-label" style="margin-top: 10px"><span>Speed (${unitStr()})</span><input id="route-speed" class="text-input" type="number" min="1" max="200" value="70" style="margin-top:4px"/></label>
             <p class="route-provider">Stops are sent to OSRM when you plan. Roads by OpenStreetMap. Internet required.</p>
             <div id="route-summary" class="route-summary" hidden></div>
-            <button id="route-play" class="primary-button" disabled>Start route · 45 mph</button>
+            <button id="route-play" class="primary-button" disabled>Start route · 70 ${unitStr()}</button>
             <p id="route-hint" class="action-hint">Add a start and destination, in order.</p>
           </div>
           <div id="fixed-actions"><button id="apply-button" class="primary-button" disabled><span>Set location</span>${icon('arrow-up-right')}</button><p id="apply-hint" class="action-hint">Connect a phone to get started.</p></div><button id="restore-button" class="restore-button" disabled>${icon('rotate-ccw')} Restore real location</button>
@@ -196,7 +201,7 @@ $('#app').innerHTML = `
   <dialog id="settings-dialog" class="sheet-dialog" aria-labelledby="settings-title">
     <div class="sheet-heading"><div><span class="eyebrow">Ghost</span><h2 id="settings-title">Settings</h2></div><button class="icon-button" data-close="settings-dialog" aria-label="Close settings">${icon('x')}</button></div>
     <div class="settings-group"><h3>Device setup</h3><div class="configuration-row"><div><strong id="settings-configuration">No setup selected</strong><small>Ghost uses this to show the right connection steps.</small></div><button id="rerun-onboarding" class="secondary-button compact">Change</button></div></div>
-    <div class="settings-group"><h3>Location sessions</h3><label class="setting-row"><span><strong>Restore on quit</strong><small>Ghost tries to stop location simulation before it closes. Keep the phone connected.</small></span><input id="restore-preference" type="checkbox" class="switch" /></label></div>
+    <div class="settings-group"><h3>Location sessions</h3><label class="setting-row"><span><strong>Speed units</strong><small>Choose between kilometers or miles per hour.</small></span><select id="unit-preference" class="text-input" style="width: 100px;"><option value="kmh">km/h</option><option value="mph">mph</option></select></label><label class="setting-row"><span><strong>Restore on quit</strong><small>Ghost tries to stop location simulation before it closes. Keep the phone connected.</small></span><input id="restore-preference" type="checkbox" class="switch" /></label></div>
     <div class="settings-group"><h3>Device tools</h3><div id="runtime-status"></div><button id="install-runtime" class="secondary-button">${icon('download')} Prepare device tools</button><p class="settings-note">First-time preparation may need an internet connection.</p></div>
     <form id="provider-form" class="settings-group"><h3>Place search</h3><label class="field-label" for="provider-url">Photon-compatible endpoint</label><input id="provider-url" class="text-input" type="url" required placeholder="https://photon.komoot.io/api/" /><p class="settings-note">Search runs only when you submit. Map tiles come from OpenStreetMap.</p><div class="button-row"><button type="submit" class="secondary-button compact">Save endpoint</button><button id="reset-provider" type="button" class="text-button">Reset</button></div></form><div class="settings-footer">Ghost 0.1.7 · Free and open source</div>
   </dialog>
@@ -378,12 +383,13 @@ function renderRoute() {
     routeStops.splice(Number(button.dataset.removeStop), 1); routePlan = null; drawRoute(); renderRoute(); paintIcons();
   }; });
   $('#route-summary').hidden = !routePlan;
-  if (routePlan) setContent('#route-summary', `<div><strong>${(routePlan.distanceMeters / 1609.344).toFixed(2)} miles</strong><span>45 mph · 1 sec updates</span></div><progress aria-label="Route progress" max="${routePlan.distanceMeters}" value="${route?.traveledMeters || 0}"></progress><p>${route?.status === 'completed' ? 'Arrived at destination' : `${routeTime(route?.remainingSeconds ?? routePlan.durationSeconds)} ${active ? 'remaining' : 'at 45 mph'}`}</p>`);
+  const speed = (route?.status === "running" || route?.status === "paused") ? (getUnit() === "mph" ? Math.round(route.speedKmh / 1.60934) : route.speedKmh) : (Number($('#route-speed')?.value) || 70);
+  if (routePlan) setContent('#route-summary', `<div><strong>${formatDist(routePlan.distanceMeters)}</strong><span>${speed} ${unitStr()} · 1 sec updates</span></div><progress aria-label="Route progress" max="${routePlan.distanceMeters}" value="${route?.traveledMeters || 0}"></progress><p>${route?.status === 'completed' ? 'Arrived at destination' : `${routeTime(route?.remainingSeconds ?? (routePlan.distanceMeters / (((getUnit() === "mph" ? speed * 1.60934 : speed) * 1000 / 3600))))} ${active ? 'remaining' : `at ${speed} ${unitStr()}`}`}</p>`);
   const device = state.devices.find(d => d.id === selectedDeviceId);
   const otherSession = state.session && state.session.deviceId !== selectedDeviceId;
   const running = route?.status === 'running', paused = route?.status === 'paused';
   $('#route-play').disabled = busy || (active ? !running && (!paused || !device || otherSession || !['ready', 'setup-required'].includes(device.state)) : !routePlan || device?.state !== 'ready' || Boolean(otherSession));
-  $('#route-play').textContent = busy ? 'Working…' : running ? 'Pause route' : paused ? 'Resume route · 45 mph' : route?.status === 'completed' ? 'Route completed' : 'Start route · 45 mph';
+  $('#route-play').textContent = busy ? 'Working…' : running ? 'Pause route' : paused ? `Resume route · ${speed} ${unitStr()}` : route?.status === 'completed' ? 'Route completed' : `Start route · ${speed} ${unitStr()}`;
   $('#route-hint').textContent = active ? route.message : otherSession ? 'Restore the current session before switching phones.' : !routePlan ? 'Add a start and destination, then plan the route.' : !device ? 'Connect a phone to start. The route is ready.' : 'Start moves your phone to the first stop, then follows the road.';
   if (route?.point && inRoute) {
     const point = [route.point.latitude, route.point.longitude];
@@ -423,7 +429,8 @@ function renderSession() {
   const recovering = ['waiting', 'unknown', 'error'].includes(session?.status);
   const recoveryText = recovering ? `<span class="session-recovery">${session.autoReconnect ? 'Ghost will retry this phone automatically. Restore cancels retry.' : 'Reconnect this phone, then retry or restore.'}</span>` : '';
   const statusIcon = session?.status === 'reconnecting' ? 'refresh-cw' : session ? ['unknown', 'error', 'waiting'].includes(session.status) ? 'help-circle' : 'map-pin' : 'circle';
-  setContent('#session-status', `<span class="session-status-icon">${icon(statusIcon, session?.status === 'reconnecting' ? 'spin' : '')}</span><div><strong>${session ? session.status === 'active' && state.route ? ({ running: 'Following route · 45 mph', paused: 'Route paused', completed: 'Arrived', starting: 'Starting route…' }[state.route.status]) : labels[session.status] || 'Session needs attention' : 'Ready'}</strong><span>${esc(state.route?.message || session?.message || (session ? session.label || 'Keep your phone connected.' : state.devices.some((device) => device.state === 'ready') ? 'Choose a place to begin.' : 'Connect a phone and choose a place.'))}</span>${recoveryText}${refreshText}</div>${session?.status === 'active' ? '<span class="live-tag"><span></span>Active</span>' : ''}`);
+  const speed = (state.route?.speedKmh ? (getUnit() === "mph" ? Math.round(state.route.speedKmh / 1.60934) : state.route.speedKmh) : null) || (document.getElementById('route-speed') ? Number(document.getElementById('route-speed').value) : 70) || 70;
+  setContent('#session-status', `<span class="session-status-icon">${icon(statusIcon, session?.status === 'reconnecting' ? 'spin' : '')}</span><div><strong>${session ? session.status === 'active' && state.route ? ({ running: `Following route · ${speed} ${unitStr()}`, paused: 'Route paused', completed: 'Arrived', starting: 'Starting route…' }[state.route.status]) : labels[session.status] || 'Session needs attention' : 'Ready'}</strong><span>${esc(state.route?.message || session?.message || (session ? session.label || 'Keep your phone connected.' : state.devices.some((device) => device.state === 'ready') ? 'Choose a place to begin.' : 'Connect a phone and choose a place.'))}</span>${recoveryText}${refreshText}</div>${session?.status === 'active' ? '<span class="live-tag"><span></span>Active</span>' : ''}`);
 }
 
 function renderRuntime() {
@@ -434,6 +441,7 @@ function renderRuntime() {
   $('#install-runtime').disabled = pending || state.busy || isPreview;
   setContent('#install-runtime', `${icon(pending ? 'loader-circle' : 'download', pending ? 'spin' : '')} ${pending ? 'Preparing…' : isPreview ? 'Available in the desktop app' : 'Prepare device tools'}`);
   if (document.activeElement !== $('#restore-preference')) $('#restore-preference').checked = state.preferences.restoreOnQuit !== false;
+  if (document.activeElement !== $('#unit-preference')) $('#unit-preference').value = state.preferences.speedUnit || 'kmh';
   const selectedGuide = state.preferences.hostPlatform && state.preferences.phonePlatform ? guideFor(state.preferences.hostPlatform, state.preferences.phonePlatform) : null;
   $('#settings-configuration').textContent = selectedGuide?.title || 'No setup selected';
 }
@@ -479,7 +487,8 @@ function renderView() {
   $('#saved-nav-button').setAttribute('aria-pressed', String(showingSaved));
   $('#panel-eyebrow').textContent = showingSaved ? 'Library' : 'Location';
   $('#panel-title').textContent = showingSaved ? 'Saved places' : locationMode === 'route' ? 'Follow a route' : 'Set a location';
-  $('#panel-subtitle').textContent = showingSaved ? 'Select a place to return to the map.' : locationMode === 'route' ? 'Choose stops. Move along the road at 45 mph.' : 'Choose a phone and a point on the map.';
+  const speed = document.getElementById('route-speed') ? Number(document.getElementById('route-speed').value) || 70 : 70;
+  $('#panel-subtitle').textContent = showingSaved ? 'Select a place to return to the map.' : locationMode === 'route' ? `Choose stops. Move along the road at ${speed} ${unitStr()}.` : 'Choose a phone and a point on the map.';
 }
 
 function handoffPhone() {
@@ -576,14 +585,17 @@ $('#add-route-stop').onclick = () => {
 };
 $('#clear-route').onclick = () => { routeStops = []; routePlan = null; drawRoute(); renderRoute(); paintIcons(); };
 $('#plan-route').onclick = async () => {
-  const planned = await runOperation(() => api.planRoute(routeStops));
+  const speed = Number($('#route-speed').value) || 70;
+  const planned = await runOperation(() => api.planRoute({ waypoints: routeStops, speedKmh: getUnit() === 'mph' ? speed * 1.60934 : speed }));
   if (planned) { routePlan = planned; drawRoute(); fitRoute(); renderRoute(); paintIcons(); }
 };
-$('#route-play').onclick = () => runOperation(() => state.route?.status === 'running' ? api.pauseRoute() : state.route?.status === 'paused' ? api.resumeRoute() : api.startRoute({ deviceId: selectedDeviceId, routeId: routePlan?.id }));
+$('#route-play').onclick = () => runOperation(() => state.route?.status === 'running' ? api.pauseRoute() : state.route?.status === 'paused' ? api.resumeRoute() : api.startRoute({ deviceId: selectedDeviceId, routeId: routePlan?.id, speedKmh: getUnit() === 'mph' ? (Number($('#route-speed').value) || 70) * 1.60934 : (Number($('#route-speed').value) || 70), speedLabel: `${Number($('#route-speed').value) || 70} ${unitStr()}` }));
+$('#route-speed').oninput = () => { renderRoute(); renderSession(); renderView(); };
 $('#restore-button').onclick = () => runOperation(() => api.stopLocation(), 'Restore command accepted. Phone apps may need a moment to refresh.', 'restore');
 $('#toast-close').onclick = () => { $('#toast').hidden = true; clearTimeout(toastTimer); };
 $('#install-runtime').onclick = () => runOperation(() => api.installRuntime(), 'Device tools checked.');
 $('#restore-preference').onchange = () => runOperation(() => api.updatePreferences({ restoreOnQuit: $('#restore-preference').checked }));
+$('#unit-preference').onchange = () => runOperation(() => api.updatePreferences({ speedUnit: $('#unit-preference').value })).then(() => render());
 $('#provider-form').onsubmit = (event) => { event.preventDefault(); const url = $('#provider-url').value.trim(); try { if (new URL(url).protocol !== 'https:') throw new Error(); } catch { notify('Use a valid HTTPS URL for your search provider.', true); return; } runOperation(() => api.updatePreferences({ geocoderUrl: url }), 'Search endpoint saved.'); };
 $('#reset-provider').onclick = () => { $('#provider-url').value = 'https://photon.komoot.io/api/'; runOperation(() => api.updatePreferences({ geocoderUrl: 'https://photon.komoot.io/api/' }), 'Default search endpoint restored.'); };
 $('#save-form').onsubmit = async (event) => { event.preventDefault(); const label = $('#place-name').value.trim(); if (!label || !placeBeingSaved) return; const result = await runOperation(() => api.savePlace({ ...placeBeingSaved, label }), 'Place saved.'); if (result) $('#save-dialog').close(); };
@@ -670,3 +682,29 @@ api.getState().then(async next => {
     if (planned) { routePlan = planned; routeStops = planned.waypoints; drawRoute(); renderRoute(); paintIcons(); }
   }
 }).catch((error) => notify(`Ghost could not initialize: ${error.message}`, true));
+
+const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+function getTheme() {
+  return localStorage.getItem('theme') || (systemPrefersDark.matches ? 'dark' : 'light');
+}
+function applyTheme() {
+  const theme = getTheme();
+  document.documentElement.setAttribute('data-theme', theme);
+  const themeButton = document.getElementById('theme-button');
+  if (themeButton) { themeButton.innerHTML = icon(theme === 'dark' ? 'sun' : 'moon'); }
+}
+systemPrefersDark.onchange = () => { if (!localStorage.getItem('theme')) applyTheme(); };
+applyTheme();
+document.getElementById('theme-button').onclick = () => {
+  localStorage.setItem('theme', getTheme() === 'dark' ? 'light' : 'dark');
+  applyTheme();
+  paintIcons();
+};
+function fixIcons() {
+  const btn = document.getElementById('theme-button');
+  if (btn && btn.querySelector('i')) {
+    paintIcons();
+  }
+}
+setTimeout(fixIcons, 100);
+document.getElementById('theme-button').addEventListener('click', paintIcons);

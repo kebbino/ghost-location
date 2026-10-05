@@ -14,6 +14,39 @@
   --glass: rgba(248, 249, 251, 0.78);
   --glass-strong: rgba(252, 252, 253, 0.91);
   --shadow: 0 18px 55px rgba(29, 34, 43, 0.18), 0 2px 10px rgba(29, 34, 43, 0.08);
+} 
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --text: #f5f5f7;
+  --secondary: #98989d;
+  --tertiary: #636366;
+  --blue: #0a84ff;
+  --blue-hover: #1e8eff;
+  --green: #32d74b;
+  --orange: #ff9f0a;
+  --red: #ff453a;
+  --line: rgba(255, 255, 255, 0.15);
+  --fill: rgba(118, 118, 128, 0.24);
+  --glass: rgba(30, 30, 32, 0.78);
+  --glass-strong: rgba(28, 28, 30, 0.91);
+  --shadow: 0 18px 55px rgba(0, 0, 0, 0.4), 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+:root[data-theme="dark"] body {
+  background: #1c1c1e;
+}
+
+:root[data-theme="dark"] .titlebar {
+  background: rgba(30, 30, 32, 0.82);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+:root[data-theme="dark"] .leaflet-layer,
+:root[data-theme="dark"] .leaflet-control-zoom-in,
+:root[data-theme="dark"] .leaflet-control-zoom-out,
+:root[data-theme="dark"] .leaflet-control-attribution {
+  filter: invert(1) hue-rotate(180deg) brightness(95%) contrast(90%);
 }
 
 * { box-sizing: border-box; }
@@ -438,3 +471,97 @@ dialog[open] { animation: rise .18s ease-out; }
 .wifi-prompt > div { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
 #wifi-manual { margin: 24px 0; }
 #wifi-manual summary { cursor: pointer; font-weight: 500; margin-bottom: 20px; }
+
+/* Dark mode structural overrides */
+:root[data-theme="dark"] .search-results { background: rgba(28,28,30,.94); border-color: rgba(255,255,255,.1); }
+:root[data-theme="dark"] dialog { background: rgba(28,28,30,.91); box-shadow: 0 28px 90px rgba(0,0,0,.5), inset 0 1px rgba(255,255,255,.1); }
+:root[data-theme="dark"] .setup-steps { background: rgba(255,255,255,.05); }
+:root[data-theme="dark"] .setup-runtime { background: rgba(255,255,255,.05); }
+:root[data-theme="dark"] .secondary-button { background: rgba(255,255,255,.1); }
+:root[data-theme="dark"] .secondary-button:hover:not(:disabled) { background: rgba(255,255,255,.15); }
+:root[data-theme="dark"] .text-input { background: rgba(255,255,255,.07); }
+:root[data-theme="dark"] .onboarding-chrome { background: rgba(28,28,30,.78); }
+:root[data-theme="dark"] .choice-card { background: rgba(255,255,255,.05); }
+:root[data-theme="dark"] .choice-card:hover { background: rgba(255,255,255,.1); }
+:root[data-theme="dark"] .onboarding-checklist { background: rgba(255,255,255,.05); }
+:root[data-theme="dark"] .checklist-row:hover { background: rgba(255,255,255,.1); }
+:root[data-theme="dark"] .toast { background: rgba(28,28,30,.93); border-color: rgba(255,255,255,.1); }
+:root[data-theme="dark"] .toast.error { background: #3b1c1c; }
+:root[data-theme="dark"] .location-modes button[aria-pressed="true"] { background: rgba(255,255,255,.15); }
+:root[data-theme="dark"] .route-summary { background: rgba(255,255,255,.05); }
+:root[data-theme="dark"] #wifi-dialog { background: rgba(28,28,30,.98); }
+:root[data-theme="dark"] .wifi-prompt { background: rgba(255,255,255,.05); }
+:root[data-theme="dark"] .connection-badge:hover,
+:root[data-theme="dark"] .map-button:hover { background: rgba(255,255,255,.15); }
+:root[data-theme="dark"] .live-tag { background: rgba(52,199,89,.2); color: #32d74b; }
+:root[data-theme="dark"] .runtime-tag.available { background: rgba(52,199,89,.2); color: #32d74b; }
+:root[data-theme="dark"] .session-status.is-active .session-status-icon { background: rgba(52,199,89,.2); }
+:root[data-theme="dark"] .session-status.needs-attention .session-status-icon { background: rgba(255,149,0,.2); }
+:root[data-theme="dark"] .onboarding-detection.connected { background: rgba(52,199,89,.2); color: #32d74b; }
+:root[data-theme="dark"] .route-stop-marker { border-color: transparent; }
+:root[data-theme="dark"] .pin-head { border-color: transparent; box-shadow: 0 4px 12px rgba(0,0,0,.6); }
+:root[data-theme="dark"] .pin-head span { background: #1c1c1e; }
+:root[data-theme="dark"] .coordinate-form { background: rgba(255,255,255,.05); }
+:root[data-theme="dark"] .device-empty,
+:root[data-theme="dark"] .device-card { background: rgba(255,255,255,.05); }
+:root[data-theme="dark"] .device-empty:hover { background: rgba(255,255,255,.1); }
+:root[data-theme="dark"] .leaflet-container .leaflet-control-attribution { background: rgba(28,28,30,.72) !important; color: #98989d !important; border: 1px solid rgba(255,255,255,0.1); }
+:root[data-theme="dark"] .saved-place:hover { background: rgba(255,255,255,.1); }
+:root[data-theme="dark"] dialog { background: rgba(28,28,30,.91) !important; border-color: rgba(255,255,255,.1) !important; }
+:root[data-theme="dark"] .onboarding-chrome { background: rgba(28,28,30,.78) !important; border-color: rgba(255,255,255,.1) !important; }
+:root[data-theme="dark"] .search-results { background: rgba(28,28,30,.94) !important; border-color: rgba(255,255,255,.1) !important; }
+/* Liquid Glass styles */
+.control-panel {
+  backdrop-filter: blur(40px) saturate(150%);
+  -webkit-backdrop-filter: blur(40px) saturate(150%);
+}
+:root[data-theme="dark"] .control-panel {
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: var(--shadow), inset 0 1px 1px rgba(255,255,255,0.15);
+  background: rgba(28,28,30,0.7);
+}
+:root[data-theme="dark"] dialog {
+  border: 1px solid rgba(255,255,255,0.1) !important;
+  box-shadow: 0 28px 90px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.15) !important;
+}
+:root[data-theme="dark"] .search-results {
+  border: 1px solid rgba(255,255,255,0.1) !important;
+  box-shadow: var(--shadow), inset 0 1px 1px rgba(255,255,255,0.1) !important;
+}
+:root[data-theme="dark"] .map-button {
+  background: rgba(28,28,30,0.7) !important;
+  border: 1px solid rgba(255,255,255,0.1) !important;
+  box-shadow: 0 7px 24px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.15) !important;
+}
+:root[data-theme="dark"] .search-box {
+  background: rgba(28,28,30,0.7) !important;
+  border: 1px solid rgba(255,255,255,0.1) !important;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.15) !important;
+}
+@media (max-width: 1120px) {
+  :root[data-theme="dark"] .connection-badge {
+    background: rgba(28,28,30,0.7) !important;
+    border: 1px solid rgba(255,255,255,0.1) !important;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.15) !important;
+  }
+}
+:root[data-theme="dark"] .search-box,
+:root[data-theme="dark"] .connection-badge,
+:root[data-theme="dark"] .map-button,
+:root[data-theme="dark"] .destination-callout,
+:root[data-theme="dark"] .session-status,
+:root[data-theme="dark"] .map-error {
+  background: rgba(28,28,30,0.7) !important;
+  border: 1px solid rgba(255,255,255,0.1) !important;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.15) !important;
+  backdrop-filter: blur(40px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(40px) saturate(150%) !important;
+}
+
+.setting-row select.text-input {
+  min-height: 28px;
+  height: 28px;
+  padding: 0 10px;
+  font-size: 12px;
+  border-radius: 8px;
+}
