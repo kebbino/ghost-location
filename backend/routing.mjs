@@ -52,7 +52,7 @@ export function pointAlong(path, distance) {
 
 export class Router {
   constructor({ fetcher = fetch, now = Date.now } = {}) { this.fetcher = fetcher; this.now = now; this.lastRequest = -Infinity; }
-  async plan(input) {
+  async plan(input, speedKmh = ROUTE_SPEED_MPS * 3.6) {
     if (!Array.isArray(input) || input.length < 2 || input.length > 12) throw new Error('Add between 2 and 12 route stops.');
     const waypoints = input.map(p => place(p));
     if (this.now() - this.lastRequest < 1000) throw new Error('Wait a second before planning another route.');
@@ -69,6 +69,6 @@ export class Router {
     } catch (error) { throw new Error(`Could not plan the road route. Check your internet connection and try again. ${error.message}`); }
     if (data.code !== 'Ok' || data.routes?.[0]?.geometry?.type !== 'LineString') throw new Error('No drivable route found. Move the pins closer to connected roads and try again.');
     const path = measurePath(data.routes[0].geometry.coordinates);
-    return { id: randomUUID(), waypoints, coordinates: path.coordinates, distanceMeters: path.distanceMeters, durationSeconds: path.distanceMeters / ROUTE_SPEED_MPS, speedMph: 45 };
+    return { id: randomUUID(), waypoints, coordinates: path.coordinates, distanceMeters: path.distanceMeters, durationSeconds: path.distanceMeters / (speedKmh * 1000 / 3600), speedKmh };
   }
 }
